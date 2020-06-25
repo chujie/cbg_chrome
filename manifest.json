@@ -1,9 +1,9 @@
 {
   "name": "CBG Helper",
   "description": "YYS CBG Helper",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "permissions": [
-    "https://yys.cbg.163.com/*"
+    "storage"
   ],
   "icons": {
     "128": "icon.png"
@@ -13,14 +13,14 @@
     "scripts": ["tracking.js"]
   },
   "content_scripts": [{
-    "matches": ["https://yys.cbg.163.com/*"],
+    "matches": ["https://yys.cbg.163.com/cgi/mweb/equip/*"],
     "js": ["content.js"]
   }],
   "browser_action": {
     "default_icon": "icon.png",
     "default_title": "CBG Helper"
   },
-  "web_accessible_resources": ["xmlhttp.js"],
+  "web_accessible_resources": ["xmlhttp.js", "acct.js"],
   "content_security_policy": "script-src 'self' https://ssl.google-analytics.com https://www.google-analytics.com https://www.googletagmanager.com; object-src 'self'",
   "manifest_version": 2
 }

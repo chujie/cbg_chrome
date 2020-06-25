@@ -1,3 +1,5 @@
+import {floatify, saveToJsonHelper} from './acct.js';
+
 var url_match = "api/get_equip_detail";
 var _open = XMLHttpRequest.prototype.open;
 window.XMLHttpRequest.prototype.open = function (method, URL) {
@@ -41,99 +43,30 @@ window.XMLHttpRequest.prototype.open = function (method, URL) {
     return _open.apply(_this, arguments);
 };
 
-
-function floatify(data) {
-    let equip = data['equip'];
-    let acct_detail = JSON.parse(equip['equip_desc']);
-    let mitama_list = acct_detail['inventory'];
-    let hero_list = acct_detail['heroes'];
-
-    Object.entries(mitama_list).forEach(([key, value]) => {
-        mitama_list[key] = floatify_mitama(value)
-    });
-    Object.entries(hero_list).forEach(([key, value]) => {
-        hero_list[key] = floatify_hero(value, mitama_list)
-    });
-    acct_detail['inventory'] = mitama_list
-    equip['equip_desc'] = JSON.stringify(acct_detail)
-    data['equip'] = equip;
-
-    return data
+function addDownloadBtn() {
+    if(document.getElementById('cbghelper_download')) {
+        return;
+    }
+    var b = document.createElement('a');
+    b.innerText = "(💾保存为JSON)";
+    b.onclick = function () {
+        console.log("To save data!");
+        saveToJsonHelper();
+    }
+    b.id = "cbghelper_download"
+    b.style.cursor = "pointer";
+    var yuhun_list = document.getElementsByClassName('yuhun-list')[0];
+    yuhun_list.parentNode.childNodes[1].append(b)
 }
 
-function getPropValue(mitama_set, mitama_list, propName) {
-    let res = 0;
-    for (let mitama_id of mitama_set) {
-        var {attrs} = mitama_list[mitama_id];
-        for (let [p, v] of attrs) {
-            if (p === propName) {
-                res += parseFloat(v);
+var checkExist = setInterval(function () {
+    if (!document.getElementById('cbghelper_download')) {
+        var ready = setInterval(function () {
+            if (document.getElementsByClassName('yuhun-list').length) {
+                console.log("Exists!");
+                clearInterval(ready);
+                addDownloadBtn()
             }
-        }
+        }, 100)
     }
-    return res.toFixed(5)
-}
-
-function floatify_hero(hero_data, mitama_list) {
-    var {attrs, equips} = hero_data
-    Object.keys(attrs).forEach( propName => {
-        if(propName === '速度' && parseFloat(attrs[propName].add_val) > 0) {
-            attrs[propName].add_val = getPropValue(equips, mitama_list, propName)
-        }
-    })
-    
-    return hero_data
-}
-
-function floatify_mitama(mitama) {
-    var {rattr, attrs} = mitama
-    mitama["attrs"] = [attrs[0], ...calAttrs(rattr)]
-    return mitama
-}
-
-function calAttrs(rattrs) {
-    var enAttrNames = ['attackAdditionRate',
-                       'attackAdditionVal',
-                       'critPowerAdditionVal',
-                       'critRateAdditionVal',
-                       'debuffEnhance',
-                       'debuffResist',
-                       'defenseAdditionRate',
-                       'defenseAdditionVal',
-                       'maxHpAdditionRate',
-                       'maxHpAdditionVal',
-                       'speedAdditionVal']
-
-    var cnAttrNames = ['攻击加成', '攻击', '暴击伤害', '暴击',
-                       '效果命中', '效果抵抗', '防御加成',
-                       '防御', '生命加成', '生命', '速度']
-
-    var basePropValue = {'攻击加成': 3, '攻击': 27, '暴击伤害': 4, '暴击': 3,
-                         '效果抵抗': 4,  '效果命中': 4, '防御加成': 3,
-                         '防御': 5, '生命加成': 3, '生命': 114, '速度': 3}
-
-    var percentProp = {'攻击加成': true, '攻击': false, '暴击伤害': true, '暴击': true,
-    '效果抵抗': true,  '效果命中': true, '防御加成': true,
-    '防御': false, '生命加成': true, '生命': false, '速度': false}
-    
-    var e2cNameMap = Object.assign({}, ...enAttrNames.map((n, index) => ({[n]: cnAttrNames[index]})))
-    res = Object()
-    for(let rattr of rattrs) {
-        var [prop, v] = rattr
-        prop = e2cNameMap[prop]
-        if(prop in res) {
-            res[prop] += v
-        } else {
-            res[prop] = v
-        }
-    }
-
-    return Object.keys(res).sort().map(p => {
-        var v = res[p]*basePropValue[p]
-        v = v.toFixed(5)
-        if (percentProp[p]) {
-            v += "%"
-        }
-        return [p, v]
-    })
-}
+}, 100);
