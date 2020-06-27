@@ -1,16 +1,20 @@
 {
   "name": "CBG Helper",
-  "description": "YYS CBG Helper",
-  "version": "0.0.2",
+  "description": "A helper tool for Onmyoji player to look for good account.",
+  "version": "0.0.3",
   "permissions": [
-    "storage"
+    "storage",
+    "webNavigation",
+    "tabs",
+    "*://yys.cbg.163.com/*"
   ],
   "icons": {
-    "128": "icon.png"
+    "128": "icon.png",
+    "48": "icon-48.png"
   },
   "background": {
     "persistent": false,
-    "scripts": ["tracking.js"]
+    "scripts": ["background.js"]
   },
   "content_scripts": [{
     "matches": ["https://yys.cbg.163.com/cgi/mweb/equip/*"],

@@ -7,6 +7,14 @@ _gaq.push(['_trackPageview']);
   ga.src = 'https://ssl.google-analytics.com/ga.js';
   var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
+
+// Inject content script when URL manipulated with history API
+const urlFilter = "http.?:\/\/yys.cbg.163.com\/cgi\/mweb\/equip\/.*"
+
+chrome.webNavigation.onHistoryStateUpdated.addListener(function(details) {
+  chrome.tabs.executeScript(null,{file:"content.js"});
+}, {url: [{urlMatches: urlFilter}]});
+
 // (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 // (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 // m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
