@@ -1,5 +1,7 @@
 import {floatify, saveToJsonHelper} from './acct.js';
 
+var acct_info = {};
+var FRAC_N = 5;
 var url_match = "api/get_equip_detail";
 var _open = XMLHttpRequest.prototype.open;
 window.XMLHttpRequest.prototype.open = function (method, URL) {
@@ -70,3 +72,8 @@ var checkExist = setInterval(function () {
         }, 100)
     }
 }, 100);
+
+export {
+    FRAC_N,
+    acct_info
+}

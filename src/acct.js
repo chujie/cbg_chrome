@@ -1,4 +1,5 @@
 'use strict'
+import {acct_info, FRAC_N} from './xmlhttp.js'
 
 const floatify = function (data) {
     let equip = data['equip'];
@@ -15,6 +16,7 @@ const floatify = function (data) {
         };
         var event = new CustomEvent("SaveLastAccount", { detail: message });
         window.dispatchEvent(event);
+        acct_info.latest = message;
     } catch (error) {}
 
     Object.entries(mitama_list).forEach(([key, value]) => {
@@ -33,21 +35,43 @@ const floatify = function (data) {
 function getPropValue(mitama_set, mitama_list, propName) {
     let res = 0;
     for (let mitama_id of mitama_set) {
-        var { attrs } = mitama_list[mitama_id];
+        var { attrs, single_attr=[] } = mitama_list[mitama_id];
         for (let [p, v] of attrs) {
             if (p === propName) {
                 res += parseFloat(v);
             }
         }
+        if (single_attr.length > 0 && single_attr[0] === propName) {
+            res += parseFloat(single_attr[1])
+        }
     }
-    return res.toFixed(5)
+    return res
 }
 
 function floatify_hero(hero_data, mitama_list) {
     var { attrs, equips } = hero_data
     Object.keys(attrs).forEach(propName => {
         if (propName === '速度' && parseFloat(attrs[propName].add_val) > 0) {
+            attrs[propName].add_val = getPropValue(equips, mitama_list, propName).toFixed(FRAC_N);
+        }
+        if (propName === '暴击' && parseFloat(attrs[propName].add_val) > 0) {
+            let suit_cp = ["针女","三味","网切","伤魂鸟","破势","镇墓兽","青女房"];
             attrs[propName].add_val = getPropValue(equips, mitama_list, propName);
+            let suit_names = equips.map(x => mitama_list[x].name);
+            let suit_count = {};
+            for (let n of suit_names) {
+                if (n in suit_count) {
+                    suit_count[n] += 1;
+                } else {
+                    suit_count[n] = 1;
+                }
+            }
+            Object.keys(suit_count).forEach(n => {
+                if (suit_count[n] >= 2 && suit_cp.includes(n)) {
+                    attrs[propName].add_val += 15
+                }
+            })
+            attrs[propName].add_val = attrs[propName].add_val.toFixed(2) + "%"
         }
     })
 
@@ -104,7 +128,7 @@ function calAttrs(rattrs, format = true) {
     return Object.keys(res).sort().map(p => {
         var v = res[p] * basePropValue[p]
         if (format) {
-            v = v.toFixed(5);
+            v = v.toFixed(FRAC_N);
             if (percentProp[p]) {
                 v += "%";
             }
@@ -167,9 +191,10 @@ function saveToJson(soulLists) {
 }
 
 function saveToJsonHelper() {
-    var event = new CustomEvent("LoadLastAccount", {});
-    window.dispatchEvent(event);
-    console.log("Account data requested!");
+    // var event = new CustomEvent("LoadLastAccount", {});
+    // window.dispatchEvent(event);
+    // console.log("Account data requested!");
+    saveToJson(acct_info.latest.mitama_list);
 }
 
 window.addEventListener("LastAccountResult", function (evt) {

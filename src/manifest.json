@@ -1,7 +1,7 @@
 {
   "name": "CBG Helper",
   "description": "A helper tool for Onmyoji player to look for good account.",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "permissions": [
     "storage",
     "webNavigation",
