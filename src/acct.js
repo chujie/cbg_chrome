@@ -20,16 +20,18 @@ const floatify = function (data) {
     } catch (error) {}
 
     Object.entries(mitama_list).forEach(([key, value]) => {
-        mitama_list[key] = floatify_mitama(value)
+        mitama_list[key] = floatify_mitama(value);
     });
     Object.entries(hero_list).forEach(([key, value]) => {
-        hero_list[key] = floatify_hero(value, mitama_list)
+        hero_list[key] = floatify_hero(value, mitama_list);
     });
-    acct_detail['inventory'] = mitama_list
-    equip['equip_desc'] = JSON.stringify(acct_detail)
+    acct_detail['inventory'] = mitama_list;
+    equip['equip_desc'] = JSON.stringify(acct_detail);
     data['equip'] = equip;
 
-    return data
+    acctHighlight(mitama_list, hero_list);
+
+    return data;
 }
 
 function getPropValue(mitama_set, mitama_list, propName) {
@@ -42,7 +44,7 @@ function getPropValue(mitama_set, mitama_list, propName) {
             }
         }
         if (single_attr.length > 0 && single_attr[0] === propName) {
-            res += parseFloat(single_attr[1])
+            res += parseFloat(single_attr[1]);
         }
     }
     return res
@@ -68,10 +70,10 @@ function floatify_hero(hero_data, mitama_list) {
             }
             Object.keys(suit_count).forEach(n => {
                 if (suit_count[n] >= 2 && suit_cp.includes(n)) {
-                    attrs[propName].add_val += 15
+                    attrs[propName].add_val += 15;
                 }
             })
-            attrs[propName].add_val = attrs[propName].add_val.toFixed(2) + "%"
+            attrs[propName].add_val = attrs[propName].add_val.toFixed(2) + "%";
         }
     })
 
@@ -188,6 +190,54 @@ function saveToJson(soulLists) {
 
     link.click();
     link.parentNode.removeChild(link);
+}
+
+function acctHighlight(mitama_list, hero_list) {
+    let fastest = {};
+    let heads = [];
+    let feet = [];
+    let suit_imp = ["招财猫", "火灵", "蚌精"];
+    let all_pos = [1,2,3,4,5,6]; 
+
+    for(let p of [1,2,3,4,5,6,7]){ //7 for 命中@4
+        fastest[p] = {'散件': 0};
+        for(let name of suit_imp) {
+            fastest[p][name] = 0;
+        }
+    }
+
+    Object.entries(mitama_list).forEach(([key, m]) => {
+        let {attrs, pos, name, qua} = m;
+        let spd = 0;
+        for (let [p, v] of attrs) {
+            if (p === '速度') {
+                spd += parseFloat(v);
+            }
+        }
+        if (pos === 4 && attrs[0][0] === '效果命中') {
+            if(spd > 15) {
+                feet.push({pos, name, value: spd});
+            }
+            pos = 7
+            if(suit_imp.includes(name)) {
+                fastest[pos][name] = fastest[pos][name] > spd ? fastest[pos][name] : spd;
+            }
+            fastest[pos]['散件'] = fastest[pos]['散件'] > spd ? fastest[pos]['散件'] : spd;  
+        }
+        if (pos === 2 && spd - 57 >= 15) {
+            heads.push({pos, name, value: spd-57});
+        } 
+        if(suit_imp.includes(name)) {
+            fastest[pos][name] = fastest[pos][name] > spd ? fastest[pos][name] : spd;
+        }
+        fastest[pos]['散件'] = fastest[pos]['散件'] > spd ? fastest[pos]['散件'] : spd;
+    });
+    acct_info.summary = {
+        heads,
+        feet,
+        fastest
+    }
+    acct_info.ready = true;
 }
 
 function saveToJsonHelper() {
