@@ -214,6 +214,10 @@ function acctHighlight(mitama_list, hero_list) {
                 spd += parseFloat(v);
             }
         }
+        if(suit_imp.includes(name)) {
+            fastest[pos][name] = fastest[pos][name] > spd ? fastest[pos][name] : spd;
+        }
+        fastest[pos]['散件'] = fastest[pos]['散件'] > spd ? fastest[pos]['散件'] : spd;
         if (pos === 4 && attrs[0][0] === '效果命中') {
             if(spd > 15) {
                 feet.push({pos, name, value: spd});
@@ -222,15 +226,11 @@ function acctHighlight(mitama_list, hero_list) {
             if(suit_imp.includes(name)) {
                 fastest[pos][name] = fastest[pos][name] > spd ? fastest[pos][name] : spd;
             }
-            fastest[pos]['散件'] = fastest[pos]['散件'] > spd ? fastest[pos]['散件'] : spd;  
-        }
-        if (pos === 2 && spd - 57 >= 15) {
+            fastest[pos]['散件'] = fastest[pos]['散件'] > spd ? fastest[pos]['散件'] : spd;
+        } else if (pos === 2 && spd - 57 >= 15) {
             heads.push({pos, name, value: spd-57});
         } 
-        if(suit_imp.includes(name)) {
-            fastest[pos][name] = fastest[pos][name] > spd ? fastest[pos][name] : spd;
-        }
-        fastest[pos]['散件'] = fastest[pos]['散件'] > spd ? fastest[pos]['散件'] : spd;
+        
     });
     acct_info.summary = {
         heads,
