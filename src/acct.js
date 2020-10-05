@@ -54,10 +54,13 @@ function floatify_hero(hero_data, mitama_list) {
     var { attrs, equips } = hero_data
     Object.keys(attrs).forEach(propName => {
         if (propName === '速度' && parseFloat(attrs[propName].add_val) > 0) {
-            attrs[propName].add_val = getPropValue(equips, mitama_list, propName).toFixed(FRAC_N);
-            if(hero_data.name === '阎魔') {
-                attrs[propName].add_val += 10.0
+            if(hero_data.heroId === 255 && hero_data.awake === 1) { //觉醒阎魔+10速度
+                attrs[propName].add_val = 10.0
+            } else {
+                attrs[propName].add_val = 0.0
             }
+            attrs[propName].add_val += getPropValue(equips, mitama_list, propName);
+            attrs[propName].add_val = attrs[propName].add_val.toFixed(FRAC_N)
         }
         if (propName === '暴击' && parseFloat(attrs[propName].add_val) > 0) {
             let suit_cp = ["针女","三味","网切","伤魂鸟","破势","镇墓兽","青女房"];
