@@ -79,7 +79,7 @@ function addHighlightBtn() {
 
 function summaryPage() {
     let decimal = 2;
-    let { fastest, heads, feet } = acct_info.summary;
+    let { fastest, heads, feet, fullspd_cnt } = acct_info.summary;
     fastest = JSON.parse(JSON.stringify(fastest)); // make a deep copy
     let wrapper = document.createElement('div');
     let title = document.createElement('h3')
@@ -93,14 +93,20 @@ function summaryPage() {
     let spd_inc = [1, 2, 3, 4, 5, 6].map(p => fastest[p]['散件'] - fastest[p]['招财猫'], 0);
     spd_inc.sort((a, b) => b - a);
     zc_spd_val += spd_inc[0] + spd_inc[1];
-
+    let td_val = function (pos, name) {
+        let res = `${fastest[pos][name].toFixed(decimal)}`
+        if (fullspd_cnt[pos][name] > 0) {
+            res += `(${fullspd_cnt[pos][name]})`
+        }
+        return res;
+    }
     Object.keys(fastest[2]).forEach(k => fastest[2][k] = fastest[2][k]-57 > 0 ? fastest[2][k] - 57 : 0)
     let fastest_tbl = `<table width="100%">
         <tr> <td>位置</td> ${[1, 2, 3, 4, 5, 6].map(i => `<td>${i}</td>`)} <td>4(命中)</td> </tr>
-        <tr> <td>散件</td> ${[1, 2, 3, 4, 5, 6, 7].map(i => `<td>${fastest[i]['散件'].toFixed(decimal)}</td>`)} </tr>
-        <tr> <td>招财猫</td> ${[1, 2, 3, 4, 5, 6, 7].map(i => `<td>${fastest[i]['招财猫'].toFixed(decimal)}</td>`)} </tr>
-        <tr> <td>火灵</td> ${[1, 2, 3, 4, 5, 6, 7].map(i => `<td>${fastest[i]['火灵'].toFixed(decimal)}</td>`)} </tr>
-        <tr> <td>蚌精</td> ${[1, 2, 3, 4, 5, 6, 7].map(i => `<td>${fastest[i]['蚌精'].toFixed(decimal)}</td>`)} </tr>
+        <tr> <td>散件</td> ${[1, 2, 3, 4, 5, 6, 7].map(i => `<td>${td_val(i, '散件')}</td>`)} </tr>
+        <tr> <td>招财猫</td> ${[1, 2, 3, 4, 5, 6, 7].map(i => `<td>${td_val(i, '招财猫')}</td>`)} </tr>
+        <tr> <td>火灵</td> ${[1, 2, 3, 4, 5, 6, 7].map(i => `<td>${td_val(i, '火灵')}</td>`)} </tr>
+        <tr> <td>蚌精</td> ${[1, 2, 3, 4, 5, 6, 7].map(i => `<td>${td_val(i, '蚌精')}</td>`)} </tr>
     </table>`;
     spd.innerHTML = `<div><span class="data-name">头:</span> ${headStr} </div>
     <div><span class="data-name">脚:</span> ${feetStr} </div>
@@ -108,7 +114,7 @@ function summaryPage() {
     <div><span class="data-name">招财一速:</span> <span class="data-value">${zc_spd_val.toFixed(5)}</span></div>`
 
     let title2 = document.createElement('h3')
-    title2.innerText = "各位置一速"
+    title2.innerText = "各位置一速(满速个数)"
 
     let fastest_sec = document.createElement('section')
     fastest_sec.innerHTML = fastest_tbl

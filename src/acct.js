@@ -55,6 +55,9 @@ function floatify_hero(hero_data, mitama_list) {
     Object.keys(attrs).forEach(propName => {
         if (propName === '速度' && parseFloat(attrs[propName].add_val) > 0) {
             attrs[propName].add_val = getPropValue(equips, mitama_list, propName).toFixed(FRAC_N);
+            if(hero_data.name === '阎魔') {
+                attrs[propName].add_val += 10.0
+            }
         }
         if (propName === '暴击' && parseFloat(attrs[propName].add_val) > 0) {
             let suit_cp = ["针女","三味","网切","伤魂鸟","破势","镇墓兽","青女房"];
@@ -70,7 +73,7 @@ function floatify_hero(hero_data, mitama_list) {
             }
             Object.keys(suit_count).forEach(n => {
                 if (suit_count[n] >= 2 && suit_cp.includes(n)) {
-                    attrs[propName].add_val += 15;
+                    attrs[propName].add_val += suit_count[n] === 6? 30:15;
                 }
             })
             attrs[propName].add_val = attrs[propName].add_val.toFixed(2) + "%";
@@ -194,6 +197,7 @@ function saveToJson(soulLists) {
 
 function acctHighlight(mitama_list, hero_list) {
     let fastest = {};
+    let fullspd_cnt = {}
     let heads = [];
     let feet = [];
     let suit_imp = ["招财猫", "火灵", "蚌精"];
@@ -201,17 +205,40 @@ function acctHighlight(mitama_list, hero_list) {
 
     for(let p of [1,2,3,4,5,6,7]){ //7 for 命中@4
         fastest[p] = {'散件': 0};
+        fullspd_cnt[p] = {'散件': 0}
         for(let name of suit_imp) {
             fastest[p][name] = 0;
+            fullspd_cnt[p][name] = 0;
         }
     }
 
     Object.entries(mitama_list).forEach(([key, m]) => {
-        let {attrs, pos, name, qua} = m;
-        let spd = 0;
+        let {attrs, pos, name, qua, rattr} = m;
+        let spd = 0, spdpt = 0;
         for (let [p, v] of attrs) {
             if (p === '速度') {
                 spd += parseFloat(v);
+            }
+        }
+        for (let rattr_entry of rattr) {
+            var [prop, v] = rattr_entry;
+            if(prop === 'speedAdditionVal') {
+                spdpt += 1
+            }
+        }
+        if (spdpt === 6 && (pos !== 2 || spd > 70)) {
+            fullspd_cnt[pos]['散件'] += 1
+            if(suit_imp.includes(name)) {
+                fullspd_cnt[pos][name] += 1
+            }
+            if (pos === 2) {
+                heads.push({pos, name, value: spd-57});
+            } else if (pos === 4 && attrs[0][0] === '效果命中') {
+                fullspd_cnt[7]['散件'] += 1
+                if(suit_imp.includes(name)) {
+                    fullspd_cnt[7][name] += 1
+                }
+                feet.push({pos, name, value: spd});
             }
         }
         if(suit_imp.includes(name)) {
@@ -219,23 +246,18 @@ function acctHighlight(mitama_list, hero_list) {
         }
         fastest[pos]['散件'] = fastest[pos]['散件'] > spd ? fastest[pos]['散件'] : spd;
         if (pos === 4 && attrs[0][0] === '效果命中') {
-            if(spd > 15) {
-                feet.push({pos, name, value: spd});
-            }
             pos = 7
             if(suit_imp.includes(name)) {
                 fastest[pos][name] = fastest[pos][name] > spd ? fastest[pos][name] : spd;
             }
             fastest[pos]['散件'] = fastest[pos]['散件'] > spd ? fastest[pos]['散件'] : spd;
-        } else if (pos === 2 && spd - 57 >= 15) {
-            heads.push({pos, name, value: spd-57});
-        } 
-        
+        }
     });
     acct_info.summary = {
         heads,
         feet,
-        fastest
+        fastest,
+        fullspd_cnt
     }
     acct_info.ready = true;
 }
