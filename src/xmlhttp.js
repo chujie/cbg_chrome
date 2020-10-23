@@ -45,8 +45,8 @@ window.XMLHttpRequest.prototype.open = function (method, URL) {
     return _open.apply(_this, arguments);
 };
 
-function addHighlightBtn() {
-    if (document.getElementById('cbghelper_showhighlight')) {
+function addExtendedHighlight() {
+    if (document.getElementById('cbghelper_exthighlight') || !acct_info.hasOwnProperty("summary")) {
         return;
     }
     let itms = [];
@@ -60,7 +60,7 @@ function addHighlightBtn() {
     }
     let fastest_spd = document.createElement('li');
     fastest_spd.innerText = `最快一速${[1, 2, 3, 4, 5, 6].reduce((total, p) => total + fastest[p]['散件'], 0).toFixed(2)}`;
-    fastest_spd.id = 'cbghelper_showhighlight';
+    fastest_spd.id = 'cbghelper_exthighlight';
     itms.push(fastest_spd);
 
     let zc_spd = document.createElement('li');
@@ -78,10 +78,15 @@ function addHighlightBtn() {
 }
 
 function summaryPage() {
+    let wrapper = document.createElement('div');
+    if (!acct_info.hasOwnProperty('summary')) {
+        wrapper.appendChild(document.createTextNode("数据加载出错，请尝试刷新页面"))
+        return wrapper;
+    }
     let decimal = 2;
     let { fastest, heads, feet, fullspd_cnt } = acct_info.summary;
     fastest = JSON.parse(JSON.stringify(fastest)); // make a deep copy
-    let wrapper = document.createElement('div');
+    
     let title = document.createElement('h3')
     title.innerText = "御魂亮点"
     let spd = document.createElement('section')
@@ -156,41 +161,48 @@ function addDownloadBtn() {
     yuhun_list.parentNode.childNodes[1].append(b)
 }
 
-let checkExist = setInterval(function () {
-    let addDownloadBtnWrapper = function () {
-        if (document.getElementsByClassName('yuhun-list').length) {
-            addDownloadBtn()
-        }
+function addDownloadBtnWrapper () {
+    if (document.getElementsByClassName('yuhun-list').length) {
+        addDownloadBtn();
     }
-    let addHighlightBtnWrapper = function () {
-        if (document.getElementsByClassName('highlight').length) {
-            addHighlightBtn()
-        }
+}
+function addExtHighlightWrapper () {
+    if (document.getElementsByClassName('highlight').length) {
+        addExtendedHighlight();
     }
-    let addHighlightViewWrapper = function () {
-        if (document.getElementsByClassName('content-pvp').length && acct_info.ready) {
-            addHighlightView();
-        }
+}
+function addHighlightViewWrapper() {
+    if (document.getElementsByClassName('content-pvp').length && acct_info.ready) {
+        addHighlightView();
     }
+}
+
+function init() {
     let checkfn_list = {
         'cbghelper_download': addDownloadBtnWrapper,
-        'cbghelper_showhighlight': addHighlightBtnWrapper,
+        'cbghelper_exthighlight': addExtHighlightWrapper,
         'cbghelper_highlight': addHighlightViewWrapper
-    };
-    let handlers = {}
+    };  
+    let handlers = {};
 
-    for (let eid of Object.keys(checkfn_list)) {
-        if (document.getElementById(eid)) {
-            if (eid in handlers) {
-                clearInterval(handlers[eid])
-                delete handlers[eid]
-            }
-            continue;
-        } else {
-            handlers[eid] = setInterval(checkfn_list[eid], 200)
+    let checkExist = setInterval(function () {
+        if (!document.URL.startsWith("https://yys.cbg.163.com/cgi/mweb/equip")) {
+            return;
         }
-    }
-}, 100);
+        for (let eid of Object.keys(checkfn_list)) {
+            if (document.getElementById(eid) && eid in handlers) {
+                clearInterval(handlers[eid]);
+                delete handlers[eid];
+            } else if (document.getElementById(eid) || eid in handlers) {
+                continue;
+            } else {
+                handlers[eid] = setInterval(checkfn_list[eid], 200);
+            }
+        }
+    }, 100);
+};
+
+init();
 
 export {
     FRAC_N,
