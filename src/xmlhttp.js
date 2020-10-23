@@ -99,9 +99,9 @@ function summaryPage() {
     spd_inc.sort((a, b) => b - a);
     zc_spd_val += spd_inc[0] + spd_inc[1];
     let td_val = function (pos, name) {
-        let res = `${fastest[pos][name].toFixed(decimal)}`
+        let res = `<span>${fastest[pos][name].toFixed(decimal)}</span> `
         if (fullspd_cnt[pos][name] > 0) {
-            res += `(${fullspd_cnt[pos][name]})`
+            res += `<span>(${fullspd_cnt[pos][name]})</span>`
         }
         return res;
     }
