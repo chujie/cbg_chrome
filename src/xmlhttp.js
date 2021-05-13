@@ -157,8 +157,8 @@ function addDownloadBtn() {
     }
     b.id = "cbghelper_download"
     b.style.cursor = "pointer";
-    let yuhun_list = document.getElementsByClassName('yuhun-list')[0];
-    yuhun_list.parentNode.childNodes[1].append(b)
+    let yuhun_list = document.getElementsByClassName('content-top-left')[0];
+    yuhun_list.getElementsByTagName('h3')[1].appendChild(b);
 }
 
 function addDownloadBtnWrapper () {
