@@ -206,8 +206,8 @@ function acctHighlight(mitama_list, hero_list) {
     let all_pos = [1,2,3,4,5,6]; 
 
     for(let p of [1,2,3,4,5,6,7]){ //7 for 命中@4
-        fastest[p] = {'散件': 0};
-        fullspd_cnt[p] = {'散件': 0}
+        fastest[p] = {};
+        fullspd_cnt[p] = {};
         for(let name of suit_imp) {
             fastest[p][name] = 0;
             fullspd_cnt[p][name] = 0;
@@ -228,29 +228,40 @@ function acctHighlight(mitama_list, hero_list) {
                 spdpt += 1
             }
         }
+        if (spdpt < 1 || (pos === 2 && spd < 57)) {
+            return;
+        }
         if (spdpt === 6 && (pos !== 2 || spd > 70)) {
             fullspd_cnt[pos]['散件'] += 1
-            if(suit_imp.includes(name)) {
-                fullspd_cnt[pos][name] += 1
+            if(name in fullspd_cnt[pos]) {
+                fullspd_cnt[pos][name] += 1;
+            } else {
+                fullspd_cnt[pos][name] = 1;
             }
             if (pos === 2) {
                 heads.push({pos, name, value: spd-57});
             } else if (pos === 4 && attrs[0][0] === '效果命中') {
-                fullspd_cnt[7]['散件'] += 1
-                if(suit_imp.includes(name)) {
-                    fullspd_cnt[7][name] += 1
+                fullspd_cnt[7]['散件'] += 1;
+                if(name in fullspd_cnt[pos]) {
+                    fullspd_cnt[7][name] += 1;
+                } else {
+                    fullspd_cnt[7][name] = 1;
                 }
                 feet.push({pos, name, value: spd});
             }
         }
-        if(suit_imp.includes(name)) {
+        if(name in fastest[pos]) {
             fastest[pos][name] = fastest[pos][name] > spd ? fastest[pos][name] : spd;
+        } else {
+            fastest[pos][name] = spd;
         }
         fastest[pos]['散件'] = fastest[pos]['散件'] > spd ? fastest[pos]['散件'] : spd;
         if (pos === 4 && attrs[0][0] === '效果命中') {
-            pos = 7
-            if(suit_imp.includes(name)) {
+            pos = 7;
+            if(name in fastest[pos]) {
                 fastest[pos][name] = fastest[pos][name] > spd ? fastest[pos][name] : spd;
+            } else {
+                fastest[pos][name] = spd;
             }
             fastest[pos]['散件'] = fastest[pos]['散件'] > spd ? fastest[pos]['散件'] : spd;
         }

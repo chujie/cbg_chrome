@@ -1,9 +1,9 @@
 import { floatify, saveToJsonHelper } from './acct.js';
 
 let acct_info = { ready: false };
-let suit_imp = ["招财猫", "火灵", "蚌精"];
 let FRAC_N = 5;
 let url_match = "api/get_equip_detail";
+let suit_imp = ["散件", "招财猫", "火灵", "蚌精"];
 let _open = XMLHttpRequest.prototype.open;
 window.XMLHttpRequest.prototype.open = function (method, URL) {
     let _onreadystatechange = this.onreadystatechange,
@@ -86,22 +86,51 @@ function summaryPage() {
     }
     let decimal = 2;
     let { fastest, heads, feet, fullspd_cnt } = acct_info.summary;
+    let fullspd_suit = Object.fromEntries(suit_imp.map(name => [name, 0]));
     fastest = JSON.parse(JSON.stringify(fastest)); // make a deep copy
+    let suit_stats = {};
+    for (let p of [1,2,3,4,5,6]) {
+        for (let name in fullspd_cnt[p]) {
+            if(fullspd_suit[name] === 0) {
+                continue;
+            }
+            if(name in suit_stats) {
+                suit_stats[name].push(p);
+            } else {
+                suit_stats[name] = [p];
+            }
+        }
+    }
+    for (let name in suit_stats) {
+        if (suit_stats[name].length >= 4) {
+            if (name in fullspd_suit) {
+                continue;
+            } else {
+                fullspd_suit[name] = 0;
+            }
+        }
+    }
+    let fast_suit_speed = function(name) {
+        let suit_fastest = Object.fromEntries([1, 2, 3, 4, 5, 6].map(p => [p, name in fastest[p]? fastest[p][name]: 0]));
+        let suit_spd_val = [1, 2, 3, 4, 5, 6].reduce((total, p) => total + suit_fastest[p], 0);
+        let spd_inc = [1, 2, 3, 4, 5, 6].map(p => fastest[p]['散件'] - suit_fastest[p]);
+        spd_inc.sort((a, b) => b - a);
+        suit_spd_val += spd_inc[0] + spd_inc[1];
+        return suit_spd_val;
+    }
+    Object.keys(fullspd_suit).forEach(name => {
+        fullspd_suit[name] = fast_suit_speed(name);
+    })
 
-    let title = document.createElement('h3')
-    title.innerText = "御魂亮点"
-    let spd = document.createElement('section')
     let sortByValue = function (a, b) { return b.value - a.value}
     let headStr = heads.length > 0 ? heads.sort(sortByValue).map(itm => `<span class="data-value">${itm.name}: ${(itm.value).toFixed(decimal)}</span>`.trim()).join(", ") : "无";
     let feetStr = feet.length > 0 ? feet.sort(sortByValue).map(itm => `<span class="data-value">${itm.name}: ${(itm.value).toFixed(decimal)}</span>`.trim()).join(", ") : "无";
-    let fastest_spd = [1, 2, 3, 4, 5, 6].reduce((total, p) => total + fastest[p]['散件'], 0);
-    let zc_spd_val = [1, 2, 3, 4, 5, 6].reduce((total, p) => total + fastest[p]['招财猫'], 0);
-    let spd_inc = [1, 2, 3, 4, 5, 6].map(p => fastest[p]['散件'] - fastest[p]['招财猫'], 0);
-    spd_inc.sort((a, b) => b - a);
-    zc_spd_val += spd_inc[0] + spd_inc[1];
+    // let fastest_spd = [1, 2, 3, 4, 5, 6].reduce((total, p) => total + fastest[p]['散件'], 0);
+    // let zc_spd_val = fast_suit_speed('招财猫');
     let td_val = function (pos, name) {
         let fullspd = fullspd_cnt[pos][name] > 0;
-        let res = `<span${fullspd? "":" class=disabled"}>${fastest[pos][name].toFixed(decimal)}</span> `
+        let spd = name in fastest[pos]? fastest[pos][name].toFixed(decimal): 0;
+        let res = `<span${fullspd? "":" class=disabled"}>${spd}</span> `
         if (fullspd) {
             res += `<span>(${fullspd_cnt[pos][name]})</span>`
         }
@@ -112,28 +141,41 @@ function summaryPage() {
         return `<tr> <td>${name}</td> ${[1, 2, 3, 4, 5, 6, 7].map(i => `<td>${td_val(i, name)}</td>`)} </tr>`;
     }
     let fastest_tbl = `<table width="100%">
-        <tr> <td>位置</td> ${[1, 2, 3, 4, 5, 6].map(i => `<td>${i}</td>`)} <td>4(命中)</td> </tr>
-        ${ speed_summary('散件') }
-        ${ suit_imp.map(name => speed_summary(name)) }
+        <tr> <th>位置</th> ${[1, 2, 3, 4, 5, 6].map(i => `<th>${i}</th>`)} <th>4(命中)</th> </tr>
+        ${ Object.keys(fullspd_suit).map(name => speed_summary(name)).join(" ") }
     </table>`;
+    let suit_table = `<table width="100%">
+        <tr> <th>御魂名称</th> <th>套装一速</th></tr>
+        ${ Object.keys(fullspd_suit).map(name => `<tr> <th>${name}</th> <td>${fullspd_suit[name].toFixed(5)}</td></tr>\n`).join("") }
+    </table>`;
+
+    let title = document.createElement('h3')
+    title.innerText = "御魂亮点"
+    let spd = document.createElement('section')
     spd.innerHTML = `<div><span class="data-name">头:</span> ${headStr} </div>
-    <div><span class="data-name">脚:</span> ${feetStr} </div>
-    <div><span class="data-name">散件一速:</span> <span class="data-value">${fastest_spd.toFixed(5)}</span></div>
-    <div><span class="data-name">招财一速:</span> <span class="data-value">${zc_spd_val.toFixed(5)}</span></div>`
+    <div><span class="data-name">脚:</span> ${feetStr} </div>`;
 
-    let title2 = document.createElement('h3')
-    title2.innerText = "各位置一速(满速个数)"
+    
+    let title2 = document.createElement('h3');
+    title2.innerText = "套装一速(非独立)";
+    let suit = document.createElement('section');
+    suit.innerHTML = suit_table;
 
-    let fastest_sec = document.createElement('section')
-    fastest_sec.innerHTML = fastest_tbl
+    let title3 = document.createElement('h3');
+    title3.innerText = "各位置一速(满速个数)";
+
+    let fastest_sec = document.createElement('section');
+    fastest_sec.innerHTML = fastest_tbl;
     if(fastest_sec.firstChild.nodeType === Node.TEXT_NODE) {
         fastest_sec.firstChild.textContent = '';
     }
 
-    wrapper.appendChild(title)
-    wrapper.appendChild(spd)
-    wrapper.appendChild(title2)
-    wrapper.appendChild(fastest_sec)
+    wrapper.appendChild(title);
+    wrapper.appendChild(spd);
+    wrapper.appendChild(title2);
+    wrapper.appendChild(suit);
+    wrapper.appendChild(title3);
+    wrapper.appendChild(fastest_sec);
     return wrapper;
 }
 
