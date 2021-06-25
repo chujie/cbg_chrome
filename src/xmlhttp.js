@@ -1,6 +1,7 @@
 import { floatify, saveToJsonHelper } from './acct.js';
 
 let acct_info = { ready: false };
+let suit_imp = ["招财猫", "火灵", "蚌精"];
 let FRAC_N = 5;
 let url_match = "api/get_equip_detail";
 let _open = XMLHttpRequest.prototype.open;
@@ -86,7 +87,7 @@ function summaryPage() {
     let decimal = 2;
     let { fastest, heads, feet, fullspd_cnt } = acct_info.summary;
     fastest = JSON.parse(JSON.stringify(fastest)); // make a deep copy
-    
+
     let title = document.createElement('h3')
     title.innerText = "御魂亮点"
     let spd = document.createElement('section')
@@ -99,19 +100,21 @@ function summaryPage() {
     spd_inc.sort((a, b) => b - a);
     zc_spd_val += spd_inc[0] + spd_inc[1];
     let td_val = function (pos, name) {
-        let res = `<span>${fastest[pos][name].toFixed(decimal)}</span> `
-        if (fullspd_cnt[pos][name] > 0) {
+        let fullspd = fullspd_cnt[pos][name] > 0;
+        let res = `<span${fullspd? "":" class=disabled"}>${fastest[pos][name].toFixed(decimal)}</span> `
+        if (fullspd) {
             res += `<span>(${fullspd_cnt[pos][name]})</span>`
         }
         return res;
     }
     Object.keys(fastest[2]).forEach(k => fastest[2][k] = fastest[2][k]-57 > 0 ? fastest[2][k] - 57 : 0)
+    let speed_summary = function (name) {
+        return `<tr> <td>${name}</td> ${[1, 2, 3, 4, 5, 6, 7].map(i => `<td>${td_val(i, name)}</td>`)} </tr>`;
+    }
     let fastest_tbl = `<table width="100%">
         <tr> <td>位置</td> ${[1, 2, 3, 4, 5, 6].map(i => `<td>${i}</td>`)} <td>4(命中)</td> </tr>
-        <tr> <td>散件</td> ${[1, 2, 3, 4, 5, 6, 7].map(i => `<td>${td_val(i, '散件')}</td>`)} </tr>
-        <tr> <td>招财猫</td> ${[1, 2, 3, 4, 5, 6, 7].map(i => `<td>${td_val(i, '招财猫')}</td>`)} </tr>
-        <tr> <td>火灵</td> ${[1, 2, 3, 4, 5, 6, 7].map(i => `<td>${td_val(i, '火灵')}</td>`)} </tr>
-        <tr> <td>蚌精</td> ${[1, 2, 3, 4, 5, 6, 7].map(i => `<td>${td_val(i, '蚌精')}</td>`)} </tr>
+        ${ speed_summary('散件') }
+        ${ suit_imp.map(name => speed_summary(name)) }
     </table>`;
     spd.innerHTML = `<div><span class="data-name">头:</span> ${headStr} </div>
     <div><span class="data-name">脚:</span> ${feetStr} </div>
@@ -206,5 +209,6 @@ init();
 
 export {
     FRAC_N,
-    acct_info
+    acct_info,
+    suit_imp
 }

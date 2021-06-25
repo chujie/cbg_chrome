@@ -1,5 +1,5 @@
 'use strict'
-import {acct_info, FRAC_N} from './xmlhttp.js'
+import {acct_info, FRAC_N, suit_imp} from './xmlhttp.js'
 
 const floatify = function (data) {
     let equip = data['equip'];
@@ -203,7 +203,6 @@ function acctHighlight(mitama_list, hero_list) {
     let fullspd_cnt = {}
     let heads = [];
     let feet = [];
-    let suit_imp = ["招财猫", "火灵", "蚌精"];
     let all_pos = [1,2,3,4,5,6]; 
 
     for(let p of [1,2,3,4,5,6,7]){ //7 for 命中@4
