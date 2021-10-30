@@ -6,6 +6,7 @@ const floatify = function (data) {
     let acct_detail = JSON.parse(equip['equip_desc']);
     let mitama_list = acct_detail['inventory'];
     let hero_list = acct_detail['heroes'];
+    let hero_info = acct_detail['hero_history'];
 
     try {
         var message = {
@@ -29,7 +30,7 @@ const floatify = function (data) {
     equip['equip_desc'] = JSON.stringify(acct_detail);
     data['equip'] = equip;
 
-    acctHighlight(mitama_list, hero_list);
+    acctHighlight(mitama_list, hero_info);
 
     return data;
 }
@@ -198,7 +199,7 @@ function saveToJson(soulLists) {
     link.parentNode.removeChild(link);
 }
 
-function acctHighlight(mitama_list, hero_list) {
+function acctHighlight(mitama_list, hero_info) {
     let fastest = {};
     let fullspd_cnt = {}
     let heads = [];
@@ -270,7 +271,8 @@ function acctHighlight(mitama_list, hero_list) {
         heads,
         feet,
         fastest,
-        fullspd_cnt
+        fullspd_cnt,
+        hero_info
     }
     acct_info.ready = true;
 }

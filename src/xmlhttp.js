@@ -3,7 +3,7 @@ import { floatify, saveToJsonHelper } from './acct.js';
 let acct_info = { ready: false };
 let FRAC_N = 5;
 let url_match = "api/get_equip_detail";
-let suit_imp = ["散件", "招财猫", "火灵", "蚌精"];
+let suit_imp = ["散件", "招财猫", "火灵", "蚌精", "共潜"];
 let _open = XMLHttpRequest.prototype.open;
 window.XMLHttpRequest.prototype.open = function (method, URL) {
     let _onreadystatechange = this.onreadystatechange,
@@ -50,27 +50,43 @@ function addExtendedHighlight() {
     if (document.getElementById('cbghelper_exthighlight') || !acct_info.hasOwnProperty("summary")) {
         return;
     }
+    let { fastest, heads, feet, hero_info } = acct_info.summary;
     let itms = [];
-    let { fastest, heads, feet } = acct_info.summary;
-    if(heads.length > 0 || feet.length > 0) {
+    let build_item = function (label, id) {
         let li = document.createElement('li');
+        li.innerText = label;
+        return li
+    };
+    //collection of heros
+    let total = hero_info['ssr']['all'] + hero_info['sp']['all'];
+    let got_total = hero_info['ssr']['got'] + hero_info['sp']['got'];
+    if (total === got_total) {
+        itms.push(build_item('SSR/SP全收集'));
+    } else if (hero_info['ssr']['all'] === hero_info['ssr']['got']) {
+        itms.push(build_item('SSR全收集'));
+    }
+    if (hero_info['x']['all'] === hero_info['x']['got']) {
+        itms.push(build_item('联动全收集'));
+    }
+    //number of heads and feet
+    if(heads.length > 0 || feet.length > 0) {
         let x = heads.length > 0 ? heads.length : '无';
         let y = feet.length > 0? feet.length : '无';
-        li.innerText = `${x}头${y}脚`;
-        itms.push(li)
+        let label = `${x}头${y}脚`;
+        itms.push(build_item(label))
     }
-    let fastest_spd = document.createElement('li');
-    fastest_spd.innerText = `最快一速${[1, 2, 3, 4, 5, 6].reduce((total, p) => total + fastest[p]['散件'], 0).toFixed(2)}`;
+    //fastest speed
+    let fastest_spd_label = `最快一速${[1, 2, 3, 4, 5, 6].reduce((total, p) => total + fastest[p]['散件'], 0).toFixed(2)}`;
+    let fastest_spd = build_item(fastest_spd_label)
     fastest_spd.id = 'cbghelper_exthighlight';
     itms.push(fastest_spd);
-
-    let zc_spd = document.createElement('li');
+    //fastest zhaocai speed
     let zc_spd_val = [1, 2, 3, 4, 5, 6].reduce((total, p) => total + fastest[p]['招财猫'], 0);
     let spd_inc = [1, 2, 3, 4, 5, 6].map(p => fastest[p]['散件'] - fastest[p]['招财猫'], 0);
     spd_inc.sort((a, b) => b - a);
     zc_spd_val += spd_inc[0] + spd_inc[1];
-    zc_spd.innerText = `招财一速${zc_spd_val.toFixed(2)}`;
-    itms.push(zc_spd);
+    let zc_spd_label = `招财一速${zc_spd_val.toFixed(2)}`;
+    itms.push(build_item(zc_spd_label));
 
     let highlight = document.getElementsByClassName('highlight')[0];
     for (let li of itms) {
@@ -125,8 +141,6 @@ function summaryPage() {
     let sortByValue = function (a, b) { return b.value - a.value}
     let headStr = heads.length > 0 ? heads.sort(sortByValue).map(itm => `<span class="data-value">${itm.name}: ${(itm.value).toFixed(decimal)}</span>`.trim()).join(", ") : "无";
     let feetStr = feet.length > 0 ? feet.sort(sortByValue).map(itm => `<span class="data-value">${itm.name}: ${(itm.value).toFixed(decimal)}</span>`.trim()).join(", ") : "无";
-    // let fastest_spd = [1, 2, 3, 4, 5, 6].reduce((total, p) => total + fastest[p]['散件'], 0);
-    // let zc_spd_val = fast_suit_speed('招财猫');
     let td_val = function (pos, name) {
         let fullspd = fullspd_cnt[pos][name] > 0;
         let spd = name in fastest[pos]? fastest[pos][name].toFixed(decimal): 0;
