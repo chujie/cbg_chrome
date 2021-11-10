@@ -1,4 +1,4 @@
-# cbg_chrome
+# CBG Helper
 A helper tool for Onmyoji player to look for good account on yys.cbg.163.com. 
 
 You can install the extension via [Chrome store](https://chrome.google.com/webstore/detail/cbg-helper/ijienmgicgdigaakalodmjejkbffecgf).
