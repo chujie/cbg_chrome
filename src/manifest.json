@@ -18,7 +18,8 @@
   },
   "content_scripts": [{
     "matches": ["https://yys.cbg.163.com/cgi/mweb/equip/*"],
-    "js": ["content.js"]
+    "js": ["content.js"],
+    "css": ["style.css"]
   }],
   "browser_action": {
     "default_icon": "icon.png",

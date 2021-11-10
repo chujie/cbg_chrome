@@ -46,6 +46,10 @@ window.XMLHttpRequest.prototype.open = function (method, URL) {
     return _open.apply(_this, arguments);
 };
 
+function nowrapText(textLabel) {
+    return `<span class="cbghelper_nowrap">${textLabel}</span>`
+}
+
 function addExtendedHighlight() {
     if (document.getElementById('cbghelper_exthighlight') || !acct_info.hasOwnProperty("summary")) {
         return;
@@ -146,7 +150,7 @@ function summaryPage() {
         let spd = name in fastest[pos]? fastest[pos][name].toFixed(decimal): 0;
         let res = `<span${fullspd? "":" class=disabled"}>${spd}</span> `
         if (fullspd) {
-            res += `<span>(${fullspd_cnt[pos][name]})</span>`
+            res += nowrapText(`(${fullspd_cnt[pos][name]})`)
         }
         return res;
     }
@@ -155,7 +159,7 @@ function summaryPage() {
         return `<tr> <td>${name}</td> ${[1, 2, 3, 4, 5, 6, 7].map(i => `<td>${td_val(i, name)}</td>`)} </tr>`;
     }
     let fastest_tbl = `<table width="100%">
-        <tr> <th>位置</th> ${[1, 2, 3, 4, 5, 6].map(i => `<th>${i}</th>`)} <th>4(命中)</th> </tr>
+        <tr> <th>位置</th> ${[1, 2, 3, 4, 5, 6].map(i => `<th>${i}</th>`)} <th>4${nowrapText("(命中)")}</th> </tr>
         ${ Object.keys(fullspd_suit).map(name => speed_summary(name)).join(" ") }
     </table>`;
     let suit_table = `<table width="100%">
