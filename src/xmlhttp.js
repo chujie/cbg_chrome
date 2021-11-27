@@ -3,7 +3,17 @@ import { floatify, saveToJsonHelper } from './acct.js';
 let acct_info = { ready: false };
 let FRAC_N = 5;
 let url_match = "api/get_equip_detail";
-let suit_imp = ["散件", "招财猫", "火灵", "蚌精", "共潜"];
+let suit_imp = ["散件", "招财猫", "火灵", "蚌精", "共潜", '遗念火'];
+let suit_by_props = {
+    '暴击': ["针女","三味","网切","伤魂鸟","破势","镇墓兽","青女房","海月火玉"],
+    '攻击加成': ["蝠翼", "轮入道", "狰", "鸣屋", "心眼", "阴摩罗", "狂骨", "兵主部", "贝吹坊"],
+    '防御加成': ["珍珠","魅妖","雪幽魂","招财猫","反枕","日女巳时","木魅","出世螺"],
+    '生命加成': ["地藏像","涅槃之火","被服","镜姬","钟灵","薙魂","树妖","涂佛","恶楼"],
+    '效果抵抗':["骰子鬼", "返魂香","魍魉之匣","幽谷响","共潜"],
+    '效果命中':["蚌精","火灵","飞缘魔","遗念火"],
+    '首领御魂': ["土蜘蛛", "胧车", "荒骷髅", "地震鲶", "蜃气楼", "鬼灵歌伎"]
+}
+
 let _open = XMLHttpRequest.prototype.open;
 window.XMLHttpRequest.prototype.open = function (method, URL) {
     let _onreadystatechange = this.onreadystatechange,
@@ -270,5 +280,6 @@ init();
 export {
     FRAC_N,
     acct_info,
-    suit_imp
+    suit_imp,
+    suit_by_props
 }

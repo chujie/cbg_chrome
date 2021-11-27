@@ -1,5 +1,5 @@
 'use strict'
-import {acct_info, FRAC_N, suit_imp} from './xmlhttp.js'
+import {acct_info, FRAC_N, suit_imp, suit_by_props} from './xmlhttp.js'
 
 const floatify = function (data) {
     let equip = data['equip'];
@@ -64,7 +64,7 @@ function floatify_hero(hero_data, mitama_list) {
             attrs[propName].add_val = attrs[propName].add_val.toFixed(FRAC_N)
         }
         if (propName === '暴击' && parseFloat(attrs[propName].add_val) > 0) {
-            let suit_cp = ["针女","三味","网切","伤魂鸟","破势","镇墓兽","青女房"];
+            let suit_cp = suit_by_props['暴击'];
             attrs[propName].add_val = getPropValue(equips, mitama_list, propName);
             let suit_names = equips.map(x => mitama_list[x].name);
             let suit_count = {};
