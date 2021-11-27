@@ -12,7 +12,7 @@ _gaq.push(['_trackPageview']);
 const urlFilter = "http.?:\/\/yys.cbg.163.com\/cgi\/mweb\/equip\/.*"
 
 chrome.webNavigation.onHistoryStateUpdated.addListener(function(details) {
-  chrome.tabs.executeScript(null,{file:"content.js"});
+  chrome.tabs.executeScript(null,{file:"js/content.js"});
 }, {url: [{urlMatches: urlFilter}]});
 
 // (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

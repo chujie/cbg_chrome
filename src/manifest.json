@@ -9,23 +9,23 @@
     "tabs"
   ],
   "icons": {
-    "128": "icon.png",
-    "48": "icon-48.png"
+    "128": "icon/icon.png",
+    "48": "icon/icon-48.png"
   },
   "background": {
     "persistent": false,
-    "scripts": ["background.js"]
+    "scripts": ["js/background.js"]
   },
   "content_scripts": [{
     "matches": ["https://yys.cbg.163.com/cgi/mweb/equip/*"],
-    "js": ["content.js"],
-    "css": ["style.css"]
+    "js": ["js/content.js"],
+    "css": ["css/style.css"]
   }],
   "browser_action": {
-    "default_icon": "icon.png",
+    "default_icon": "icon/icon.png",
     "default_title": "CBG Helper"
   },
-  "web_accessible_resources": ["xmlhttp.js", "acct.js"],
+  "web_accessible_resources": ["js/xmlhttp.js", "js/acct.js"],
   "content_security_policy": "script-src 'self' https://ssl.google-analytics.com https://www.google-analytics.com https://www.googletagmanager.com; object-src 'self'",
   "manifest_version": 2
 }

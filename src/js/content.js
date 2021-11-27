@@ -4,7 +4,7 @@
     window.hasRun = true;
     var s = document.createElement("script");
     s.type = "module"
-    s.src = chrome.extension.getURL("xmlhttp.js");
+    s.src = chrome.extension.getURL("js/xmlhttp.js");
     s.onload = function () {
         this.remove();
     };
