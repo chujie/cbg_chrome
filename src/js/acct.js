@@ -1,5 +1,7 @@
+//chrome-only{
 'use strict'
 import {acct_info, FRAC_N, suit_imp, suit_by_props} from './xmlhttp.js'
+//}chrome-only-ends
 
 const floatify = function (data) {
     let equip = data['equip'];
@@ -284,6 +286,7 @@ function saveToJsonHelper() {
     saveToJson(acct_info.latest.mitama_list);
 }
 
+//chrome-only{
 window.addEventListener("LastAccountResult", function (evt) {
     console.log("Account data received!");
     saveToJson(evt.detail);
@@ -293,3 +296,4 @@ export {
     floatify,
     saveToJsonHelper
 };
+//}chrome-only-ends

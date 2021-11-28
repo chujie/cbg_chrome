@@ -1,3 +1,4 @@
+//chrome-only{
 (function () {
     if (window.hasRun === true)
         return true;  // Will ultimately be passed back to executeScript
@@ -26,3 +27,4 @@
         });
     }, false); 
 })();
+//}chrome-only-ends

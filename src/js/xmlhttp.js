@@ -1,4 +1,6 @@
+//chrome-only{
 import { floatify, saveToJsonHelper } from './acct.js';
+//}chrome-only-ends
 
 let acct_info = { ready: false };
 let FRAC_N = 5;
@@ -277,9 +279,11 @@ function init() {
 
 init();
 
+//chrome-only{
 export {
     FRAC_N,
     acct_info,
     suit_imp,
     suit_by_props
 }
+//}chrome-only-ends
